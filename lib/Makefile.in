@@ -1,0 +1,7 @@
+MODULE = uktrain
+
+OBJS =	cms/oldcms.o
+
+OBJS +=	common/home.o
+
+include ../SubMakefile

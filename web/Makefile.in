@@ -1,0 +1,19 @@
+######################################################################
+# Copy the web resources
+######################################################################
+
+# Location of build directory
+BUILD_DIR   = ../build
+
+# Library destination & directory for individual build targets
+PACKAGE_DIR = $(BUILD_DIR)/package
+WEB_DIR	    = $(PACKAGE_DIR)/usr/share/uktrain
+
+all: css
+
+clean:
+
+.PHONY: css
+css:
+	@mkdir -p $(WEB_DIR)/css
+	cp -rpv css/*.css $(WEB_DIR)/css
