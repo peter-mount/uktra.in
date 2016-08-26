@@ -75,13 +75,13 @@ int handler(WEBSERVER_REQUEST *request) {
     webserver_setRequestAttribute(request, "body", f, (void (*)(void *))template_free);
 
     CharBuffer *b = template_render(request, lookup, ctx, body);
+    template_free(body);
+
     if (!b)
         return MHD_NO;
 
     int len = 0;
     void *buf = charbuffer_getBuffer(b, &len);
-
-    template_free(body);
     charbuffer_free(b);
 
     struct MHD_Response *response = MHD_create_response_from_buffer(len, buf, MHD_RESPMEM_MUST_FREE);

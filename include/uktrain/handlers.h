@@ -14,13 +14,22 @@
 #ifndef UKTRAIN_HANDLERS_H
 #define UKTRAIN_HANDLERS_H
 
+#include <microhttpd.h>
+#include <area51/memory.h>
+#include <area51/template.h>
+#include <area51/webserver.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+    extern TemplateEngine *templateEngine;
 
     extern int addOldCMS(WEBSERVER *, const char *, TemplateEngine *, TemplateEngine *);
 
+    extern int render_template_name(WEBSERVER_REQUEST *, TemplateEngine *);
 
+    extern int ukt_station_index(WEBSERVER_REQUEST *);
+    
 #ifdef __cplusplus
 }
 #endif

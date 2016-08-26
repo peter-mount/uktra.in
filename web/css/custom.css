@@ -27,3 +27,38 @@
      margin-left: auto;
      margin-right: auto;
 }
+
+#body {
+    padding-top: 5em;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    background-color: #fff;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 12px;
+    line-height: 1;
+    margin-left: 1em;
+    margin-right: 1em;
+}
+
+table.wikitable {
+        margin: 1em 0;
+    background-color: #f9f9f9;
+    border: 1px #aaa solid;
+    border-collapse: collapse;
+    color: black;
+}
+
+table.wikitable thead th, table.wikitable th {
+    background-color: #f2f2f2;
+    text-align: center;
+    border: 1px #aaa solid;
+    padding-left: 0.2em;
+    padding-right: 0.2em;
+}
+
+table.wikitable tbody td, table.wikitable td {
+    background-color: #f9f9f9;
+    border: 1px #aaa solid;
+    padding-left: 0.2em;
+    padding-right: 0.2em;
+}

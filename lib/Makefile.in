@@ -1,7 +1,10 @@
 MODULE = uktrain
 
-OBJS =	cms/oldcms.o
+OBJS =	cms/oldcms.o \
+	cms/template.o
 
 OBJS +=	common/home.o
+
+OBJS += timetable/stationIndex.o
 
 include ../SubMakefile

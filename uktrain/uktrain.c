@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <area51/curl.h>
 #include <area51/json.h>
 #include <area51/log.h>
 #include <area51/hashmap.h>
@@ -18,7 +19,7 @@
 int verbose = 0;
 
 static WEBSERVER *webserver = NULL;
-static TemplateEngine *templateEngine = NULL;
+TemplateEngine *templateEngine = NULL;
 
 static int about() {
     logconsole("Usage: timetabled [-ip4] [-ip6] [-p{port}]\n");
@@ -74,6 +75,7 @@ static int parseargs(WEBSERVER *webserver, int argc, char** argv) {
 }
 
 int main(int argc, char** argv) {
+    curl_pool_init(10);
 
     webserver = webserver_new();
     if (!webserver) {
@@ -92,6 +94,9 @@ int main(int argc, char** argv) {
     }
 
     webserver_set_defaults(webserver);
+
+    // ---- Station index
+    webserver_add_handler(webserver, "/station/", ukt_station_index, NULL);
 
     // ---- Old cms ----
     TemplateEngine *cms = template_init("/var/www/uktra.in");
