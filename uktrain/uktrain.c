@@ -17,6 +17,9 @@
 
 int verbose = 0;
 
+static WEBSERVER *webserver = NULL;
+static TemplateEngine *templateEngine = NULL;
+
 static int about() {
     logconsole("Usage: timetabled [-ip4] [-ip6] [-p{port}]\n");
     return EXIT_FAILURE;
@@ -24,18 +27,19 @@ static int about() {
 static const char *BASE = "/usr/share/uktrain/";
 static char *base = NULL;
 
-static int parseargs(int argc, char** argv) {
+static int parseargs(WEBSERVER *webserver, int argc, char** argv) {
     for (int i = 1; i < argc; i++) {
         char *s = argv[i];
         if (s[0] == '-' && s[1] != 0) {
             if (strncmp("-ip4", s, 4) == 0)
-                webserver_enableIPv4();
+                webserver_enableIPv4(webserver);
             else if (strncmp("-ip6", s, 4) == 0)
-                webserver_enableIPv6();
+                webserver_enableIPv6(webserver);
             else switch (s[1]) {
                     case 'p':
                         if (s[2])
-                            webserver.port = atoi(&s[2]);
+                            // Need to add this to api
+                            webserver_setPort(webserver, atoi(&s[2]));
                         break;
 
                     case 'b':
@@ -60,7 +64,7 @@ static int parseargs(int argc, char** argv) {
         }
     }
 
-    if (webserver.port < 1 || webserver.port > 65535)
+    if (webserver_getPort(webserver) < 1 || webserver_getPort(webserver) > 65535)
         return about();
 
     if (!base)
@@ -71,30 +75,41 @@ static int parseargs(int argc, char** argv) {
 
 int main(int argc, char** argv) {
 
-    webserver_initialise();
+    webserver = webserver_new();
+    if (!webserver) {
+        logconsole(("Failed to initialise webserver"));
+        return EXIT_FAILURE;
+    }
 
-    int rc = parseargs(argc, argv);
+    int rc = parseargs(webserver, argc, argv);
     if (rc)
         return rc;
 
-    if (template_init(base)) {
+    templateEngine = template_init(base);
+    if (!templateEngine) {
         logconsole(("Failed to initialise template engine"));
         return EXIT_FAILURE;
     }
 
-    webserver_set_defaults();
+    webserver_set_defaults(webserver);
 
+    // ---- Old cms ----
+    TemplateEngine *cms = template_init("/var/www/uktra.in");
+    // Handle old cms image requests
+    template_addHandler_r(webserver, "/images/*", cms);
+    
     // Handle old cms requests
-    webserver_add_handler("/*", oldCmsHandler);
+    webserver_add_handler(webserver, "/*", oldCmsHandler, cms);
+    // ---- Old cms ----
 
-    // Must be last
-    webserver_add_handler("/*", templateHandler);
+    // Must be last, any app static content
+    template_addHandler(webserver, templateEngine);
 
     // Preload permanent templates
-    template_loadPermanent("/css/main.css");
+    //template_loadPermanent(templateEngine, "/css/main.css");
 
-    logconsole("Starting webserver on port %d", webserver.port);
-    webserver_start();
+    //logconsole("Starting webserver on port %d", webserver->port);
+    webserver_start(webserver);
 
     while (1) {
         sleep(60);

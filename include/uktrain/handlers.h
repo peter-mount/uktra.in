@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-    extern int oldCmsHandler(struct MHD_Connection *, WEBSERVER_HANDLER *, const char *);
+    extern int oldCmsHandler(WEBSERVER_REQUEST *request);
 
 
 #ifdef __cplusplus

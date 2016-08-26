@@ -16,43 +16,36 @@
 #include <area51/webserver.h>
 #include <area51/template.h>
 
-static const char *BASE = "/var/www/uktra.in";
-
-// Don't allow any file begining with . to prevent people trying to scan filesystem
-static const char *INVALID = "/.";
-
 /**
- * Handles static content under /var/www. This handles checks for attempts by the client to gain access outside of
- * that directory, then hands the file to microhttpd to stream it back.
+ * Handles static content stored in the old CMS format.
+ * 
+ * This format takes a file, /Excuses (always starts with an upper case character
+ * or digit) and converts that to /E/Excuses/index.shtml which is then read from
+ * the filesystem (in this instance a TemplateEngine set to the directory
+ * containing the local mirror of the static content).
  * 
  * @param connection
  * @return 
  */
-int oldCmsHandler(struct MHD_Connection * connection, WEBSERVER_HANDLER *handler, const char *url) {
+int oldCmsHandler(WEBSERVER_REQUEST *request) {
+    const char *url = webserver_getRequestUrl(request);
+
     // Don't intercept lower case characters
-    // . & / are invalid anyhow so ignore if first char
-    // (remember url always starts with / hence char 1)
-    if (!url || !url[0] || !url[1])
+    if (!webserver_isUrlValid(request) || !url[1] || islower(url[1]))
         return MHD_NO;
 
-    // Validate url - i.e. must start with / and must not be a lower case character
-    if (url[0] != '/' || islower(url[1]))
-        return MHD_NO;
-
-    // Validate url - cannot contain /. (also mean /.. as well)
-    // This prevents people from scanning outside of /var/www using ../../ style url's
-    if (findString((char *) url, (char *) INVALID))
-        return MHD_NO;
-
-    // Add "/cms/" 5, E 1 "/index.shtml" 12 = 18
-    char path[strlen(url) + 1 + 18];
-    strcpy(path, "/cms/");
-    path[5] = url[1];
-    path[6] = 0;
+    // Add /E 2 "/index.shtml" 12 = 14
+    char path[strlen(url) + 1 + 14];
+    path[0] = '/';
+    path[1] = url[1];
+    path[2] = 0;
     strcat(path, url);
-    strcat(path,"/index.shtml");
+    strcat(path, "/index.shtml");
 
-    logconsole("cms \"%s\"", path);
+    TemplateEngine *e = webserver_getUserData(request);
+    TemplateFile *f = template_get(e, path);
+    if (!f)
+        return MHD_NO;
 
-    return templateHandler(connection, handler, path);
+    return template_respondTemplate(request, f);
 }
