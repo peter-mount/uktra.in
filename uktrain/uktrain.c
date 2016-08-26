@@ -97,9 +97,9 @@ int main(int argc, char** argv) {
     TemplateEngine *cms = template_init("/var/www/uktra.in");
     // Handle old cms image requests
     template_addHandler_r(webserver, "/images/*", cms);
-    
-    // Handle old cms requests
-    webserver_add_handler(webserver, "/*", oldCmsHandler, cms);
+
+    // Handle old cms page requests - these get templated in to the skin
+    addOldCMS(webserver, "/*", templateEngine, cms);
     // ---- Old cms ----
 
     // Must be last, any app static content

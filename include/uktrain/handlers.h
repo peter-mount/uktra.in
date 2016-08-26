@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-    extern int oldCmsHandler(WEBSERVER_REQUEST *request);
+    extern int addOldCMS(WEBSERVER *, const char *, TemplateEngine *, TemplateEngine *);
 
 
 #ifdef __cplusplus
