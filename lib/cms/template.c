@@ -23,10 +23,17 @@ static TemplateFile *lookup(char *n, void *c) {
     return template_get(e, n);
 }
 
-int render_template_name(WEBSERVER_REQUEST *request, TemplateEngine *e) {
+/**
+ * Render a page
+ * @param request Request
+ * @param e TemplateEngine to use
+ * @param n template to use, null for standard one
+ * @return MHD_YES or MHD_NO
+ */
+int render_template_name(WEBSERVER_REQUEST *request, TemplateEngine *e, char *n) {
 
     // The layout
-    TemplateFile *body = template_get(e, "/layout/body.html");
+    TemplateFile *body = template_get(e, n ? n : "/layout/body.html");
     if (!body)
         return MHD_NO;
 

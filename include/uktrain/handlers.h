@@ -26,7 +26,7 @@ extern "C" {
 
     extern int addOldCMS(WEBSERVER *, const char *, TemplateEngine *, TemplateEngine *);
 
-    extern int render_template_name(WEBSERVER_REQUEST *, TemplateEngine *);
+    extern int render_template_name(WEBSERVER_REQUEST *, TemplateEngine *, char *);
 
     extern int ukt_station_index(WEBSERVER_REQUEST *);
     
