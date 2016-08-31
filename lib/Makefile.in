@@ -5,7 +5,11 @@ OBJS =	cms/oldcms.o \
 
 OBJS +=	common/home.o
 
-OBJS += timetable/search.o \
-	timetable/stationIndex.o
+OBJS += station/index.o
+
+OBJS += timetable/index.o \
+	timetable/parse.o \
+	timetable/schedule.o \
+	timetable/search.o
 
 include ../SubMakefile

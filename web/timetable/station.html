@@ -1,0 +1,46 @@
+<div id="main-content">
+    Found {{size}} trains calling or passing {{desc}} on {{schedDate}}:
+
+    <table class="wikitable wtt">
+        <thead>
+            <tr>
+                <th rowspan="2" colspan="3">Schedule</th>
+                <th rowspan="3">
+                    Train
+                    Destination
+                </th>
+                <th colspan="6">Times at {{desc}}</th>
+                <th rowspan="3">
+                    Train
+                    Origin
+                </th>
+                <th rowspan="3">Activity</th>
+            </tr>
+            <tr>
+                <th colspan="2">Public</th>
+                <th rowspan="2">Pl</th>
+                <th colspan="3">Working Timetable</th>
+            </tr>
+            <tr>
+                <th>UID</th>
+                <th>ID</th>
+                <th>Ind</th>
+                <th>Arr</th>
+                <th>Dep</th>
+                <th>Arr</th>
+                <th>Dep</th>
+                <th>Pass</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{template:schedules}}
+        </tbody>
+    </table>
+
+    <table class="wikitable">
+        <caption>Train Activity</caption>
+        <thead><tr><th colspan="2">Train Activity</th></tr></thead>
+        <tbody>{{template:activity}}</tbody>
+    </table>
+
+</div>

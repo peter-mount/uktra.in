@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <area51/curl.h>
 #include <area51/json.h>
 #include <area51/log.h>
@@ -74,7 +75,46 @@ static int parseargs(WEBSERVER *webserver, int argc, char** argv) {
     return 0;
 }
 
+/**
+ * Dummy handler that acts like a Servlet filter in Java.
+ * 
+ * Here we add some request attributes to the current date/time of the request
+ * @param r WEBSERVER_REQUEST
+ * @return always MHD_NO
+ */
+static int handler(WEBSERVER_REQUEST *r) {
+    struct tm tm;
+    time_t now;
+    char temp[16];
+
+    time(&now);
+    localtime_r(&now, &tm);
+
+    // Year in YYYY format - used in the page footer most of the time
+    snprintf(temp, 16, "%04d", tm.tm_year + 1900);
+    webserver_setRequestAttribute(r, "date.year", strdup(temp), free);
+
+    // Date in ISO format, ie YYYY-MM-DD
+    snprintf(temp, 16, "%04d-%02d-%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+    webserver_setRequestAttribute(r, "date.iso", strdup(temp), free);
+
+    // Time in ISO format, ie HH:MM:SS
+    snprintf(temp, 16, "%02d:%02d:02d", tm.tm_hour, tm.tm_min, tm.tm_sec);
+    webserver_setRequestAttribute(r, "date.time", strdup(temp), free);
+
+    // Hour of the day, i.e. 0..23, used in some select elements
+    snprintf(temp, 16, "%d", tm.tm_hour);
+    webserver_setRequestAttribute(r, "date.hour", strdup(temp), free);
+
+    // Always return MHD_NO to continue scanning for the correct action
+    return MHD_NO;
+}
+
 int main(int argc, char** argv) {
+    // We must run in UK time regardless of the underlying timezone
+    // If we don't then we could show the wrong date/time's on forms
+    putenv("TZ=Europe/London");
+
     curl_pool_init(10);
 
     webserver = webserver_new();
@@ -95,12 +135,16 @@ int main(int argc, char** argv) {
 
     webserver_set_defaults(webserver);
 
+    // Add fields to request
+    webserver_add_handler(webserver, "/*", handler, NULL);
+
     // ---- Station index
     webserver_add_handler(webserver, "/station/", ukt_station_index, NULL);
-    
+
     // ---- Timetables
-    webserver_add_handler(webserver,"/timetable/", ukt_timetable_search, templateEngine);
-    webserver_add_handler(webserver,"/timetable", ukt_timetable_search, templateEngine);
+    ukt_timetable(webserver, templateEngine);
+    ukt_timetable_search(webserver, templateEngine);
+    ukt_timetable_schedule(webserver, templateEngine);
 
     // ---- Old cms ----
     TemplateEngine *cms = template_init("/var/www/uktra.in");

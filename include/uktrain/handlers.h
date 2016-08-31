@@ -15,6 +15,7 @@
 #define UKTRAIN_HANDLERS_H
 
 #include <microhttpd.h>
+#include <area51/json.h>
 #include <area51/memory.h>
 #include <area51/template.h>
 #include <area51/webserver.h>
@@ -29,8 +30,16 @@ extern "C" {
     extern int render_template_name(WEBSERVER_REQUEST *, TemplateEngine *, char *);
 
     extern int ukt_station_index(WEBSERVER_REQUEST *);
+
+    extern int ukt_timetable(WEBSERVER *, TemplateEngine *);
+    extern int ukt_timetable_search(WEBSERVER *, TemplateEngine *);
+    extern int ukt_timetable_schedule(WEBSERVER *, TemplateEngine *);
     
-    extern int ukt_timetable_search(WEBSERVER_REQUEST *);
+    extern bool isNumeric(char *);
+    extern bool parseTime(struct tm *, char *);
+    extern void charbuffer_append_jsonStr(CharBuffer *, struct json_object *, const char *);
+    extern void charbuffer_appendTime(CharBuffer *, struct json_object *, const char *);
+    extern void charbuffer_renderTiploc(CharBuffer *, struct json_object *, char *);
     
 #ifdef __cplusplus
 }

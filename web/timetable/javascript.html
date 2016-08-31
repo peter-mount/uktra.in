@@ -2,8 +2,25 @@
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
 <script src="/js/combo.js"></script>
 <script>
+    function submitsearch() {
+        var station = $('#station').val();
+        var date = $('#date').val();
+        var hour = $('#hour').val();
+        console.log(station, date, hour);
+        if (station !== '' && date != '') {
+            if (hour !== '')
+                date = date + (hour < 10 ? 'T0' : 'T') + hour;
+            console.log(station, date);
+            document.location = '/timetable/station/' + station + "/" + date;
+        } else if (station === '')
+            $('#stationSearch').focus();
+        else
+            $('#date').focus();
+    }
+    
+
     $(document).ready(function () {
-        $("#stationLabel").autocomplete({
+        $("#stationSearch").autocomplete({
             //source: "/api/rail/1/station/search",
             source: "http://alpine-dev:9000/search",
             minLength: 3,
@@ -25,15 +42,16 @@
             },
             select: function (event, ui) {
                 console.log(ui);
-                $('#station').val(ui.item.tiploc);
+                $('#station').val(ui.item.stanox);
                 $('#date').focus();
             }
         });
 
         setTimeout(function () {
-            $('#date').val('2016-08-29');
+            $('#date').val('{{date.iso}}');
+            $('#hour').val('{{date.hour}}')
             $('#station').val('');
-            $('#stationLabel').val('').focus();
+            $('#stationSearch').val('').focus();
         }, 250);
     });
 </script>

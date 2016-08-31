@@ -89,8 +89,10 @@ static void getStations(CharBuffer *out, char *active) {
         return;
 
     char *url = genurl("http://[::1]:9000/station/", active);
-    if (!url)
+    if (!url) {
+        charbuffer_free(b);
         return;
+    }
 
     int ret = curl_get(url, b);
     free(url);
@@ -118,16 +120,19 @@ static void getStations(CharBuffer *out, char *active) {
             charbuffer_append(out, "</td><td align=\"right\" colspan=\"2\">");
             if (!json_isNull(ent, "stanox"))
                 charbuffer_append_int(out, json_getInt(ent, "stanox"), 0);
-            
+
             charbuffer_append(out, "</td><td colspan=\"4\">");
             charbuffer_append(out, json_getString(ent, "tiploc"));
-            
+
             charbuffer_append(out, "</td><td colspan=\"16\">");
             if (!json_isNull(ent, "desc"))
                 charbuffer_append(out, json_getString(ent, "desc"));
-            
+
             charbuffer_append(out, "</td></tr>");
         }
+
+        // Free the json object
+        json_object_put(obj);
     }
 
     charbuffer_free(b);
