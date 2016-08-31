@@ -1,44 +1,44 @@
 <div id="main-content">
-    Found {{size}} trains calling or passing {{desc}} on {{schedDate}}:
+    <h1>{{desc}}</h1>
+    
+    <div class="wtt wttnormal linklist">
+        {{request:link.prev}}
+        {{request:index.url}}
+    </div>
 
     <table class="wikitable wtt">
         <thead>
             <tr>
-                <th rowspan="2" colspan="3">Schedule</th>
-                <th rowspan="3">
-                    Train
-                    Destination
-                </th>
-                <th colspan="6">Times at {{desc}}</th>
-                <th rowspan="3">
-                    Train
-                    Origin
-                </th>
-                <th rowspan="3">Activity</th>
-            </tr>
-            <tr>
-                <th colspan="2">Public</th>
+                <th colspan="3">Schedule</th>
+                <th rowspan="2">Train Destination</th>
+                <th colspan="2" class="wttwork">Public</th>
                 <th rowspan="2">Pl</th>
-                <th colspan="3">Working Timetable</th>
+                <th colspan="3" class="wttwork">Working Timetable</th>
+                <th rowspan="2">Train Origin</th>
+                <th rowspan="2">Activity</th>
             </tr>
             <tr>
                 <th>UID</th>
                 <th>ID</th>
                 <th>Ind</th>
-                <th>Arr</th>
-                <th>Dep</th>
-                <th>Arr</th>
-                <th>Dep</th>
-                <th>Pass</th>
+                <th class="wttpta">Arr</th>
+                <th class="wttptd">Dep</th>
+                <th class="wttwta">Arr</th>
+                <th class="wttwtd">Dep</th>
+                <th class="wttwtp">Pass</th>
             </tr>
         </thead>
         <tbody>
             {{template:schedules}}
         </tbody>
     </table>
+    
+    <div class="wtt wttnormal linklist">
+        {{request:link.prev}}
+        {{request:index.url}}
+    </div>
 
     <table class="wikitable">
-        <caption>Train Activity</caption>
         <thead><tr><th colspan="2">Train Activity</th></tr></thead>
         <tbody>{{template:activity}}</tbody>
     </table>

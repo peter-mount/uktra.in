@@ -48,6 +48,12 @@ table.wtt {}
 .wttnormal a {color: #00F;}
 .wttpass a {color: #88F;}
 
+.linklist a:last-child {border-right: 1px solid #fff;}
+.linklist a {
+    border-right: 1px solid #888;
+    padding-right: 0.25em;
+}
+
 .wttact {
     text-align: right;
     width: 1.5em;
@@ -112,3 +118,6 @@ table.wikitable td.tableblankrow {
     height: 5px;
 }
 
+.left {float:left;}
+.right {float:right;}
+.clear {clear: both;}

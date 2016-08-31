@@ -73,7 +73,7 @@ static void renderScheduleHead(CharBuffer *b, struct json_object *sched) {
 
     hdrStr(b, sched, "WTT Schedule UID", "uid");
     hdrStr(b, sched, "STP Indicator", "stdInd");
-    hdrStr(b, sched, "identity", "trainId");
+    hdrStr(b, sched, "Identity", "trainId");
     hdrStr(b, sched, "Headcode", "headcode");
     hdrStr(b, sched, "Category", "category");
     hdrStr(b, sched, "Status", "status");
@@ -198,7 +198,6 @@ static void renderSchedule(
                 charbuffer_appendTime(b, origin, "ptd");
             else
                 charbuffer_appendTime(b, origin, "wtd");
-            charbuffer_add(b, ' ');
         }
     }
     charbuffer_renderTiploc(b, tiploc, json_getString(sched, "origin"));

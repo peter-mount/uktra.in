@@ -5,7 +5,8 @@ OBJS =	cms/oldcms.o \
 
 OBJS +=	common/home.o
 
-OBJS += station/index.o
+OBJS += station/details.o \
+	station/index.o
 
 OBJS += timetable/index.o \
 	timetable/parse.o \

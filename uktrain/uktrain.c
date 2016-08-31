@@ -139,7 +139,9 @@ int main(int argc, char** argv) {
     webserver_add_handler(webserver, "/*", handler, NULL);
 
     // ---- Station index
+    webserver_add_handler(webserver, "/station", ukt_station_index, NULL);
     webserver_add_handler(webserver, "/station/", ukt_station_index, NULL);
+    webserver_add_handler(webserver, "/station/*", ukt_station_details, templateEngine);
 
     // ---- Timetables
     ukt_timetable(webserver, templateEngine);

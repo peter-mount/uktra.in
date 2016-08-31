@@ -58,7 +58,7 @@ static void getIndexList(CharBuffer *out, char *active) {
             if (act)
                 charbuffer_append(out, " class=\"active\">");
             else {
-                charbuffer_append(out, "><a href=\"/station/?s=");
+                charbuffer_append(out, "><a href=\"/station?s=");
                 charbuffer_append(out, (char *) l);
                 charbuffer_append(out, "\">");
             }
@@ -113,7 +113,22 @@ static void getStations(CharBuffer *out, char *active) {
             const char *l = json_object_get_string(ent);
             bool act = strcmp(l, active) == 0;
 
-            charbuffer_append(out, "<tr><td colspan=\"2\">");
+            charbuffer_append(out, "<tr><td colspan=\"4\">");
+            char *tiploc = json_getString(ent, "tiploc");
+            if (tiploc) {
+                // No stanox then no station detail page
+                if (json_isNull(ent, "stanox"))
+                    charbuffer_append(out, tiploc);
+                else {
+                    charbuffer_append(out, "<a href=\"/station/");
+                    charbuffer_append(out, tiploc);
+                    charbuffer_append(out, "\">");
+                    charbuffer_append(out, tiploc);
+                    charbuffer_append(out, "</a>");
+                }
+            }
+
+            charbuffer_append(out, "</td><td colspan=\"2\">");
             if (!json_isNull(ent, "crs"))
                 charbuffer_append(out, json_getString(ent, "crs"));
 
@@ -121,12 +136,9 @@ static void getStations(CharBuffer *out, char *active) {
             if (!json_isNull(ent, "stanox"))
                 charbuffer_append_int(out, json_getInt(ent, "stanox"), 0);
 
-            charbuffer_append(out, "</td><td colspan=\"4\">");
-            charbuffer_append(out, json_getString(ent, "tiploc"));
-
             charbuffer_append(out, "</td><td colspan=\"16\">");
             if (!json_isNull(ent, "desc"))
-                charbuffer_append(out, json_getString(ent, "desc"));
+                charbuffer_append_jsonStr(out, ent, "desc");
 
             charbuffer_append(out, "</td></tr>");
         }
@@ -147,9 +159,10 @@ int ukt_station_index(WEBSERVER_REQUEST *request) {
 
     CharBuffer *out = charbuffer_new();
 
-    charbuffer_append(out, "<table class=\"wikitable\"><thead>");
+    charbuffer_append(out, "<table class=\"wikitable wtt\"><thead>");
     getIndexList(out, active);
-    charbuffer_append(out, "<tr><th colspan=\"2\">CRS</th><th colspan=\"2\">Stanox</th><th colspan=\"4\">Tiploc</th><th colspan=\"16\">Station name</th></tr>");
+    charbuffer_append(out, "<tr><th colspan=\"4\" rowspan=\"2\">Tiploc</th><th colspan=\"4\" class=\"wttwork\">Network Rail</th><th colspan=\"16\" rowspan=\"2\">Station name</th></tr>");
+    charbuffer_append(out, "<tr><th colspan=\"2\" class=\"wttwta\">CRS</th><th colspan=\"2\" class=\"wttwtp\">Stanox</th></tr>");
     charbuffer_append(out, "</thead><tbody>");
     getStations(out, active);
     charbuffer_append(out, "</tbody></table>");

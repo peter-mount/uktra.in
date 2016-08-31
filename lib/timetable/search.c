@@ -22,7 +22,6 @@
 #include <time.h>
 #include <curl/curl.h>
 #include "uktrain/handlers.h"
-#include <area51/trace.h>
 
 // Length of "/timetable/station/" no *
 #define PREFIX_LENGTH 19
@@ -55,15 +54,19 @@ static bool getStation(WEBSERVER_REQUEST *request, const char *station) {
             for (int i = 0; i < len && !succ; i++) {
                 json_object *ent = (json_object *) array_list_get_idx(list, i);
 
-                if (!json_isNull(ent, "crs") && !json_isNull(ent, "desc")) {
-                    webserver_setRequestAttribute(request, "crs", strdup(json_getString(ent, "crs")), free);
-                    webserver_setRequestAttribute(request, "title", strdup(json_getString(ent, "desc")), free);
-                    webserver_setRequestAttribute(request, "desc", strdup(json_getString(ent, "desc")), free);
-                    succ = true;
+                char *crs = json_getString(ent, "crs");
+                if (crs)
+                    webserver_setRequestAttribute(request, "crs", strdup(crs), free);
+                
+                char *desc = json_getString(ent, "desc");
+                if (desc) {
+                    webserver_setRequestAttribute(request, "title", strdup(desc), free);
+                    webserver_setRequestAttribute(request, "desc", strdup(desc), free);
                 }
             }
 
             json_object_put(obj);
+            succ = true;
         }
     }
 
@@ -84,10 +87,10 @@ static void renderActivity(CharBuffer *b, struct json_object *activity) {
         itEnd = json_object_iter_end(activity);
         while (!json_object_iter_equal(&it, &itEnd)) {
             charbuffer_append(b, "<tr><th>");
-            charbuffer_append(b, (char *)json_object_iter_peek_name(&it));
+            charbuffer_append(b, (char *) json_object_iter_peek_name(&it));
             charbuffer_append(b, "</th><td>");
             struct json_object *o = json_object_iter_peek_value(&it);
-            charbuffer_append(b, (char *)json_object_get_string(o));
+            charbuffer_append(b, (char *) json_object_get_string(o));
             charbuffer_append(b, "</td></tr>");
             json_object_iter_next(&it);
         }
@@ -126,22 +129,22 @@ static void renderSchedule(
 
     if (json_object_object_get_ex(sched, "loc", &ent)) {
 
-        charbuffer_append(b, "</td><td>");
+        charbuffer_append(b, "</td><td class=\"wttpub wttpta\">");
         charbuffer_appendTime(b, ent, "pta");
 
-        charbuffer_append(b, "</td><td>");
+        charbuffer_append(b, "</td><td class=\"wttpub wttptd\">");
         charbuffer_appendTime(b, ent, "ptd");
 
-        charbuffer_append(b, "</td><td>");
+        charbuffer_append(b, "</td><td class=\"wttplat\">");
         charbuffer_append_jsonStr(b, ent, "platform");
 
-        charbuffer_append(b, "</td><td>");
+        charbuffer_append(b, "</td><td class=\"wttwork wttwta\">");
         charbuffer_appendTime(b, ent, "wta");
 
-        charbuffer_append(b, "</td><td>");
+        charbuffer_append(b, "</td><td class=\"wttwork wttwtd\">");
         charbuffer_appendTime(b, ent, "wtd");
 
-        charbuffer_append(b, "</td><td>");
+        charbuffer_append(b, "</td><td class=\"wttwork wttwtp\">");
         charbuffer_appendTime(b, ent, "wtp");
     } else
         charbuffer_append(b, "</td><td colspan=\"6\">");
@@ -157,7 +160,7 @@ static void renderSchedule(
             int len = array_list_length(list);
             for (int i = 0; i < len; i++) {
                 json_object *ent = (json_object *) array_list_get_idx(list, i);
-                char *s = (char *)json_object_get_string(ent);
+                char *s = (char *) json_object_get_string(ent);
 
                 if (json_object_object_get_ex(activity, s, &ent)) {
                     charbuffer_append(b, "<span class=\"wttact\">");
@@ -255,23 +258,7 @@ static int search(WEBSERVER_REQUEST *request, const char *station, struct tm * d
     return render_template_name(request, templateEngine, NULL);
 }
 
-/**
- * Show schedule
- * @param request
- * @param station
- * @param date
- * @return 
- */
-static int schedule(WEBSERVER_REQUEST *request, const char *station, const char *date) {
-    trace;
-    logconsole("station \"%s\"", station);
-    logconsole("   date \"%s\"", date);
-
-    return MHD_NO;
-}
-
 static int handler(WEBSERVER_REQUEST * request) {
-    trace;
     const char *url = webserver_getRequestUrl(request);
     logconsole("url \"%s\"", url);
     if (strlen(url) > PREFIX_LENGTH) {
@@ -284,17 +271,11 @@ static int handler(WEBSERVER_REQUEST * request) {
             char id[len];
             strncpy(id, &url[PREFIX_LENGTH], len - 1);
             id[len - 1] = 0;
-            logconsole("date \"%s\"", date);
-            logconsole("  id \"%s\"", id);
 
             // Parse date, reject anything before 2016
             struct tm tm;
             if (!parseTime(&tm, date) || tm.tm_year < 116)
                 return MHD_NO;
-
-            logconsole("time %04d-%02d-%02d %02d",
-                    tm.tm_year, tm.tm_mon, tm.tm_mday,
-                    tm.tm_hour);
 
             if (isNumeric(id))
                 return search(request, id, &tm);

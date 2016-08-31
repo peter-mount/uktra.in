@@ -30,6 +30,7 @@ extern "C" {
     extern int render_template_name(WEBSERVER_REQUEST *, TemplateEngine *, char *);
 
     extern int ukt_station_index(WEBSERVER_REQUEST *);
+    extern int ukt_station_details(WEBSERVER_REQUEST *);
 
     extern int ukt_timetable(WEBSERVER *, TemplateEngine *);
     extern int ukt_timetable_search(WEBSERVER *, TemplateEngine *);
