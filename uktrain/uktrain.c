@@ -97,6 +97,10 @@ int main(int argc, char** argv) {
 
     // ---- Station index
     webserver_add_handler(webserver, "/station/", ukt_station_index, NULL);
+    
+    // ---- Timetables
+    webserver_add_handler(webserver,"/timetable/", ukt_timetable_search, templateEngine);
+    webserver_add_handler(webserver,"/timetable", ukt_timetable_search, templateEngine);
 
     // ---- Old cms ----
     TemplateEngine *cms = template_init("/var/www/uktra.in");

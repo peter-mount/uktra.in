@@ -1,0 +1,39 @@
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+<script src="/js/combo.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#stationLabel").autocomplete({
+            //source: "/api/rail/1/station/search",
+            source: "http://alpine-dev:9000/search",
+            minLength: 3,
+            autoFocus: true,
+            response: function (event, ui) {
+                $.each(ui.content, function (i, v) {
+                    v.value = v.desc;
+                    v.label = v.desc + ' [' + v.crs + ']';
+                });
+                var val = event.target.value.toUpperCase();
+                // sort by value but if crs matches the value then bring that forward
+                ui.content.sort(function (a, b) {
+                    if (a.crs === val || a.tiploc === val)
+                        return -999999;
+                    if (b.crs === val || a.tiploc === val)
+                        return 999999;
+                    return a.value - b.value;
+                });
+            },
+            select: function (event, ui) {
+                console.log(ui);
+                $('#station').val(ui.item.tiploc);
+                $('#date').focus();
+            }
+        });
+
+        setTimeout(function () {
+            $('#date').val('2016-08-29');
+            $('#station').val('');
+            $('#stationLabel').val('').focus();
+        }, 250);
+    });
+</script>

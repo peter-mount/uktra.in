@@ -30,6 +30,8 @@ extern "C" {
 
     extern int ukt_station_index(WEBSERVER_REQUEST *);
     
+    extern int ukt_timetable_search(WEBSERVER_REQUEST *);
+    
 #ifdef __cplusplus
 }
 #endif

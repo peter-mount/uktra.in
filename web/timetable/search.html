@@ -1,0 +1,29 @@
+<div id="main-content">
+    <h2>UK Timetables</h2>
+    <p>From this page you can query the current timetable for any UK Rail station.</p>
+    <p>The timetable shows every planned train from today and up to 12 months into the future.
+    </p>
+    <style>
+        .ui-widget { padding-bottom: 0.25em; }
+        label { width:10em; display: inline-block; text-align: right; }
+    </style>
+    <form method="GET" action="/timetable/search">
+        <div class="ui-widget">
+            <label id="stationlabel" for="stationLabel">Station:</label>
+            <input id="stationLabel" class="ui-autocomplete-input" autocomplete="off">
+        </div>
+        <div class="ui-widget">
+            <label id="datelabel" for="date">Date to search:</label>
+            <input id="date" name="date" type="date" value="2016-08-29"> </div>
+        <div class="ui-widget">
+            <label></label>
+            <input name="submit" type="submit" value="Search">
+        </div>
+        <input id="station" type="hidden" name="station" value="">
+    </form>
+    <div class="notice">
+        Although all efforts have been made to make this accurate,
+        this functionality has been provided for research purposes only and
+        should not be relied upon for normal daily use - although it will help.
+    </div>
+</div>
