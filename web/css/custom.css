@@ -54,12 +54,6 @@ table.wtt {}
     padding-right: 0.25em;
 }
 
-.wttact {
-    text-align: right;
-    width: 1.5em;
-    display: inline-block;
-}
-
 .wttplat {text-align: center;}
 
 table.wikitable tbody th.wttpub, table.wikitable th.wttwork {border-bottom: 1px solid #f2f2f2;}

@@ -57,11 +57,17 @@ static bool getStation(WEBSERVER_REQUEST *request, const char *station) {
                 char *crs = json_getString(ent, "crs");
                 if (crs)
                     webserver_setRequestAttribute(request, "crs", strdup(crs), free);
-                
+
                 char *desc = json_getString(ent, "desc");
                 if (desc) {
                     webserver_setRequestAttribute(request, "title", strdup(desc), free);
                     webserver_setRequestAttribute(request, "desc", strdup(desc), free);
+                    webserver_setRequestAttribute(request, "title", strdup(desc), free);
+
+                    // Station index link
+                    char idx[128];
+                    sprintf(idx, "<a href=\"/station?s=%c\">Station Index</a>", *desc);
+                    webserver_setRequestAttribute(request, "index.url", strdup(idx), free);
                 }
             }
 
@@ -74,9 +80,10 @@ static bool getStation(WEBSERVER_REQUEST *request, const char *station) {
     return succ;
 }
 
+static const char *prevNextLink = "<a href=\"/timetable/station/%s/%04d-%02d-%02dT%02d\">%s</a>\n";
 static const char *schedUrl[] = {
-    "http://[::1]:9000/schedule/stanox/%5s/%04d-%02d-%02dT%02d",
-    "http://[::1]:9000/schedule/stanox/%5s/%04d-%02d-%02d"
+    "http://[::1]:9000/schedule/stanox/%s/%04d-%02d-%02dT%02d",
+    "http://[::1]:9000/schedule/stanox/%s/%04d-%02d-%02d"
 };
 
 static void renderActivity(CharBuffer *b, struct json_object *activity) {
@@ -162,10 +169,11 @@ static void renderSchedule(
                 json_object *ent = (json_object *) array_list_get_idx(list, i);
                 char *s = (char *) json_object_get_string(ent);
 
+                if (i)
+                    charbuffer_append(b, ", ");
+                
                 if (json_object_object_get_ex(activity, s, &ent)) {
-                    charbuffer_append(b, "<span class=\"wttact\">");
                     charbuffer_append(b, s);
-                    charbuffer_append(b, "</span>");
                 }
             }
 
@@ -231,6 +239,45 @@ static void getSchedules(WEBSERVER_REQUEST *request, const char *station, struct
             json_object_put(obj);
         }
 
+        // Add now/next, only on time pages
+        if (tm->tm_hour >= 0) {
+            time_t low, high, t2, now;
+            struct tm tm1;
+            memset(&tm1, 0, sizeof (struct tm));
+
+            // Time at midnight - prevent looking 
+            time(&now);
+            localtime_r(&now, &tm1);
+            tm1.tm_hour = tm1.tm_min = tm1.tm_sec = 0;
+            tm1.tm_isdst = 0;
+            low = mktime(&tm1);
+
+            // & 1 year later
+            tm1.tm_hour = 23;
+            tm1.tm_min = tm1.tm_sec = 59;
+            tm1.tm_year++;
+            high = mktime(&tm1);
+
+            // reset now to the displayed time
+            now = mktime(tm);
+
+            // previous hour
+            t2 = now - 3600;
+            if (t2 >= low) {
+                gmtime_r(&t2, &tm1);
+                sprintf(url, prevNextLink, station, tm1.tm_year + 1900, tm1.tm_mon + 1, tm1.tm_mday, tm1.tm_hour, "Previous Hour");
+                webserver_setRequestAttribute(request, "link.prev", strdup(url), free);
+            }
+
+            // next hour
+            t2 = now + 3600;
+            if (t2 <= high) {
+                gmtime_r(&t2, &tm1);
+                sprintf(url, prevNextLink, station, tm1.tm_year + 1900, tm1.tm_mon + 1, tm1.tm_mday, tm1.tm_hour, "Next Hour");
+                webserver_setRequestAttribute(request, "link.next", strdup(url), free);
+            }
+        }
+
         charbuffer_free(b);
     }
 }
@@ -251,8 +298,8 @@ static int search(WEBSERVER_REQUEST *request, const char *station, struct tm * d
 
     getSchedules(request, station, date);
 
-    webserver_setRequestAttribute(request, "title", "Timetable Search", NULL);
-    webserver_setRequestAttribute(request, "javascript", "/timetable/javascript.html", NULL);
+    //webserver_setRequestAttribute(request, "title", "Timetable Search", NULL);
+    //webserver_setRequestAttribute(request, "javascript", "/timetable/javascript.html", NULL);
     webserver_setRequestAttribute(request, "body", f, (void (*)(void*))template_free);
 
     return render_template_name(request, templateEngine, NULL);

@@ -150,10 +150,11 @@ static void renderScheduleDetail(
                 json_object *ent = (json_object *) array_list_get_idx(list, i);
                 char *s = (char *) json_object_get_string(ent);
 
+                if (i)
+                    charbuffer_append(b, ", ");
+
                 if (json_object_object_get_ex(activity, s, &ent)) {
-                    charbuffer_append(b, "<span class=\"wttact\">");
                     charbuffer_append(b, s);
-                    charbuffer_append(b, "</span>");
                 }
             }
 
