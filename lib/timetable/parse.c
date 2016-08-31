@@ -82,6 +82,12 @@ void charbuffer_append_jsonStr(CharBuffer *b, struct json_object *ent, const cha
     }
 }
 
+void charbuffer_append_jsonInt(CharBuffer *b, struct json_object *ent, const char *k) {
+    int i = json_getInt(ent, k);
+    if (i > INT_MIN)
+        charbuffer_append_int(b, i, 0);
+}
+
 void charbuffer_appendTime(CharBuffer *b, struct json_object *ent, const char *k) {
     char *s = json_getString(ent, k);
     if (s) {

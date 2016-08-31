@@ -38,6 +38,7 @@ extern "C" {
     extern bool isNumeric(char *);
     extern bool parseTime(struct tm *, char *);
     extern void charbuffer_append_jsonStr(CharBuffer *, struct json_object *, const char *);
+    extern void charbuffer_append_jsonInt(CharBuffer *, struct json_object *, const char *);
     extern void charbuffer_appendTime(CharBuffer *, struct json_object *, const char *);
     extern void charbuffer_renderTiploc(CharBuffer *, struct json_object *, char *);
     

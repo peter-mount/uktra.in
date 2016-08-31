@@ -157,7 +157,7 @@ static void renderSchedule(
             int len = array_list_length(list);
             for (int i = 0; i < len; i++) {
                 json_object *ent = (json_object *) array_list_get_idx(list, i);
-                char *s = json_object_get_string(ent);
+                char *s = (char *)json_object_get_string(ent);
 
                 if (json_object_object_get_ex(activity, s, &ent)) {
                     charbuffer_append(b, "<span class=\"wttact\">");
@@ -253,8 +253,6 @@ static int search(WEBSERVER_REQUEST *request, const char *station, struct tm * d
     webserver_setRequestAttribute(request, "body", f, (void (*)(void*))template_free);
 
     return render_template_name(request, templateEngine, NULL);
-
-    return MHD_NO;
 }
 
 /**
